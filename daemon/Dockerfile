@@ -45,7 +45,7 @@ COPY sdk/src/data_validation/xml/xsd/product/ /build/daemon/packaging/xsd/produc
 ARG CARGO_ARGS
 ARG REPO_VERSION
 RUN sed -i -e "0,/version.*$/ s/version.*$/version\ =\ \"${REPO_VERSION}\"/" daemon/Cargo.toml \
-&& cargo build --manifest-path=daemon/Cargo.toml --release $CARGO_ARGS
+   && cargo build --manifest-path=daemon/Cargo.toml --release $CARGO_ARGS
 WORKDIR /build/daemon
 RUN cargo deb --no-build --deb-version $REPO_VERSION --manifest-path ./Cargo.toml
 
@@ -55,7 +55,7 @@ WORKDIR /build
 ARG CARGO_ARGS
 ARG REPO_VERSION
 RUN sed -i -e "0,/version.*$/ s/version.*$/version\ =\ \"${REPO_VERSION}\"/" cli/Cargo.toml \
- && cargo build --manifest-path=cli/Cargo.toml --release $CARGO_ARGS
+   && cargo build --manifest-path=cli/Cargo.toml --release $CARGO_ARGS
 WORKDIR /build/cli
 RUN cargo deb --no-build --deb-version $REPO_VERSION --manifest-path ./Cargo.toml
 
@@ -78,17 +78,24 @@ COPY --from=gridd-builder /commit-hash /commit-hash
 
 # hadolint ignore=DL3015
 RUN apt-get update \
- && apt-get install -y -q \
-    ca-certificates \
-    curl \
-    libsqlite3-dev \
-    man \
-    postgresql-client \
- && mandb \
- && dpkg --unpack /tmp/grid*.deb \
- && apt-get -f -y install \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
+   && apt-get install -y -q \
+   ca-certificates \
+   curl \
+   libsqlite3-dev \
+   man \
+   postgresql-client \
+   && mandb \
+   && dpkg --unpack /tmp/grid*.deb \
+   && apt-get -f -y install \
+   && apt-get clean \
+   && rm -rf /var/lib/apt/lists/*
+
+RUN add-apt-repository ppa:fkrull/deadsnakes
+RUN apt-get update
+RUN apt-get install git python3.8
+RUN git clone https://github.com/Harepitlord/GridRestAPI.git
+RUN pip install -r requirements.txt
+RUN python manage.py runserver 3000
 
 RUN echo ". /usr/share/bash-completion/bash_completion" >> ~/.bashrc
 
