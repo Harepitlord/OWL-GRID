@@ -90,12 +90,13 @@ RUN apt-get update \
    && apt-get clean \
    && rm -rf /var/lib/apt/lists/*
 
-RUN add-apt-repository ppa:fkrull/deadsnakes
 RUN apt-get update
-RUN apt-get install git python3.8
+RUN apt-get install git python3-dev python3-pip -y
+
 RUN git clone https://github.com/Harepitlord/GridRestAPI.git
-RUN pip install -r requirements.txt
-RUN python manage.py runserver 3000
+RUN pip3 install -r GridRestAPI/requirements.txt
+RUN nohup python3 GridRestAPI/manage.py runserver 0.0.0.0:3000 &
+
 
 RUN echo ". /usr/share/bash-completion/bash_completion" >> ~/.bashrc
 
